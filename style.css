@@ -1,0 +1,53 @@
+* {
+  margin: 0;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+body, html {
+  background-color: #eaeaea;
+  position: relative;
+}
+
+.container {
+  width: 90%;
+  margin: 0 auto;
+  padding-top: 10px;
+}
+
+.heading {
+  text-align: center;
+  font-size: 3rem;
+  font-family: var(--wkd-typography-reenie);
+}
+
+.text {
+  text-align: center;
+  font-size: 1.4rem;
+  font-family: var(--wkd-typography-insol);
+}
+
+.canvas {
+  position: absolute;
+  top: 0px;
+  z-index: -1;
+}
+
+@media only screen and (min-width: 900px) {
+    .main {
+      display: flex;
+      justify-content: space-between;
+      width: 85%;
+      max-width: 1400px;
+      margin: 0 auto;
+      justify-self: center;
+      align-items: center;
+    }
+    .container {
+      width: 400px;
+    }
+    .canvas {
+      position: relative;
+      z-index: 10;
+    }
+}
