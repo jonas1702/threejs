@@ -1,40 +1,59 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 /* create a scene */
 const scene =  new THREE.Scene()
+
+const sizes = {
+    width: 750,
+    height: 500
+}
 
 /* animation */
 let mixer     // Three.JS AnimationMixer
 let Player_anim_IDLE   // Animation IDL
 
-const loader = new GLTFLoader()
+function loadAnim(file) {
+    const loader = new GLTFLoader()
 
-loader.load( './monkeyAnim.glb', function ( glb ) {
+    loader.load(file, function ( glb ) {
 
-    const monkey = glb.scene
-    scene.add(monkey) 
-    mixer = new THREE.AnimationMixer(monkey)
-    Player_anim_IDLE = glb.animations[0]
-    mixer.clipAction(Player_anim_IDLE).play();
+        const monkey = glb.scene
+        scene.add(monkey) 
+        mixer = new THREE.AnimationMixer(monkey)
+        Player_anim_IDLE = glb.animations[0]
+        mixer.clipAction(Player_anim_IDLE).play();
 
-}, undefined, function ( error ) {
+    }, undefined, function ( error ) {
 
-	console.error( error )
+        console.error( error )
 
-} );
-
-const sizes = {
-    width: window.innerWidth,
-    height: window.innerHeight
+    } );
 }
 
-// const geometry = new THREE.PlaneGeometry( 10, 10 );
-// geometry.rotateZ(180)
-// const material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
-// const plane = new THREE.Mesh( geometry, material );
-// scene.add( plane );
-// plane.position.y = 0
+function loadstatic(file) {
+    const loader = new GLTFLoader()
+    loader.load(file, function ( glb ) {
+
+        const monkey = glb.scene
+        scene.add(monkey)
+
+    }, undefined, function ( error ) {
+
+        console.error( error )
+
+    } );
+}
+
+function defaultResize() {
+    sizes.width = window.innerWidth
+    sizes.height = window.innerHeight
+
+    camera.aspect = window.innerWidth / window.innerHeight
+    camera.updateProjectionMatrix()
+    renderer.setSize(sizes.width, sizes.height )
+}
 
 /* create a camera, set perspective and aspect ratio and create light */
 const camera = new THREE.PerspectiveCamera( 15, sizes.width / sizes.height, 0.1, 1000 )
@@ -69,25 +88,51 @@ newcanvas.classList.add('canvas')
 
 renderer.render(scene, camera)
 
-/* resizeing */
-window.addEventListener('resize', () => {
-    if (window.innerWidth <= 900) {
-        sizes.width = window.innerWidth
-        sizes.height = window.innerHeight
+let page = document.body.id
+switch (page) {
 
-        camera.aspect = window.innerWidth / window.innerHeight
-        camera.updateProjectionMatrix()
-        renderer.setSize(sizes.width, sizes.height )
-    } else {
-        sizes.width = 500
-        sizes.height = 750
+    case 'monkeyAnim':
+        loadAnim('./monkeyAnim.glb')
+        /* resizeing */
+        window.addEventListener('resize', () => {
+            if (window.innerWidth <= 900) {
+                defaultResize()
+            } else {
+                sizes.width = 750
+                sizes.height = 500
 
-        camera.aspect = 500 / 750
-        camera.updateProjectionMatrix()
-        renderer.setSize(sizes.width, sizes.height )
-    }
-    
-})
+                camera.aspect = 750 / 500
+                camera.updateProjectionMatrix()
+                renderer.setSize(sizes.width, sizes.height)
+            }
+            
+        })
+        // const controlsAnim = new OrbitControls(camera, newcanvas)
+        // controlsAnim.enableDamping = true
+        // controlsAnim.enablePan = false
+        // controlsAnim.enableZoom = false
+        break
+
+    case 'monkeyScroll':
+        loadstatic('./monkey.glb')
+        defaultResize()
+        window.addEventListener('resize', () => {
+            defaultResize()
+        })
+
+        const controlsScroll = new OrbitControls(camera, newcanvas)
+        controlsScroll.enableDamping = true
+        controlsScroll.enablePan = false
+        controlsScroll.enableZoom = false
+        // controlsScroll.autoRotate = true
+        // controlsScroll.autoRotateSpeed = 5
+        break
+
+    default:
+        console.log('error')
+        break
+
+}
 
 /* animation loop */
 const clock = new THREE.Clock()
@@ -98,6 +143,7 @@ const loop = () => {
     if (mixer) {
         mixer.update(clock.getDelta() / 8)
     }
+
 	renderer.render( scene, camera )
 
 }
